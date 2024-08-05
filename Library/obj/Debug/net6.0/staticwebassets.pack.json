@@ -13,6 +13,90 @@
       "PackagePath": "staticwebassets\\favicon.ico"
     },
     {
+      "Id": "D:\\dotNet\\Library\\Library\\wwwroot\\images\\129149475.jpg",
+      "PackagePath": "staticwebassets\\images\\129149475.jpg"
+    },
+    {
+      "Id": "D:\\dotNet\\Library\\Library\\wwwroot\\images\\1315629.png",
+      "PackagePath": "staticwebassets\\images\\1315629.png"
+    },
+    {
+      "Id": "D:\\dotNet\\Library\\Library\\wwwroot\\images\\647537.jpg",
+      "PackagePath": "staticwebassets\\images\\647537.jpg"
+    },
+    {
+      "Id": "D:\\dotNet\\Library\\Library\\wwwroot\\images\\653510.jpg",
+      "PackagePath": "staticwebassets\\images\\653510.jpg"
+    },
+    {
+      "Id": "D:\\dotNet\\Library\\Library\\wwwroot\\images\\Screenshot_2023-12-06_071511.png",
+      "PackagePath": "staticwebassets\\images\\Screenshot_2023-12-06_071511.png"
+    },
+    {
+      "Id": "D:\\dotNet\\Library\\Library\\wwwroot\\images\\Screenshot_2023-12-23_213315.png",
+      "PackagePath": "staticwebassets\\images\\Screenshot_2023-12-23_213315.png"
+    },
+    {
+      "Id": "D:\\dotNet\\Library\\Library\\wwwroot\\images\\authors.jpg",
+      "PackagePath": "staticwebassets\\images\\authors.jpg"
+    },
+    {
+      "Id": "D:\\dotNet\\Library\\Library\\wwwroot\\images\\b3a11a76885e51f067433c05a1d8fb3d.jpg",
+      "PackagePath": "staticwebassets\\images\\b3a11a76885e51f067433c05a1d8fb3d.jpg"
+    },
+    {
+      "Id": "D:\\dotNet\\Library\\Library\\wwwroot\\images\\b3a11a76885e51f067433c05a1d8fb3d_FPv2mIU.jpg",
+      "PackagePath": "staticwebassets\\images\\b3a11a76885e51f067433c05a1d8fb3d_FPv2mIU.jpg"
+    },
+    {
+      "Id": "D:\\dotNet\\Library\\Library\\wwwroot\\images\\book1.jpg",
+      "PackagePath": "staticwebassets\\images\\book1.jpg"
+    },
+    {
+      "Id": "D:\\dotNet\\Library\\Library\\wwwroot\\images\\book4.jpg",
+      "PackagePath": "staticwebassets\\images\\book4.jpg"
+    },
+    {
+      "Id": "D:\\dotNet\\Library\\Library\\wwwroot\\images\\book6.jpg",
+      "PackagePath": "staticwebassets\\images\\book6.jpg"
+    },
+    {
+      "Id": "D:\\dotNet\\Library\\Library\\wwwroot\\images\\books.jpg",
+      "PackagePath": "staticwebassets\\images\\books.jpg"
+    },
+    {
+      "Id": "D:\\dotNet\\Library\\Library\\wwwroot\\images\\logo.jpg",
+      "PackagePath": "staticwebassets\\images\\logo.jpg"
+    },
+    {
+      "Id": "D:\\dotNet\\Library\\Library\\wwwroot\\images\\members.jpg",
+      "PackagePath": "staticwebassets\\images\\members.jpg"
+    },
+    {
+      "Id": "D:\\dotNet\\Library\\Library\\wwwroot\\images\\wallpaperflare.com_wallpaper_64.jpg",
+      "PackagePath": "staticwebassets\\images\\wallpaperflare.com_wallpaper_64.jpg"
+    },
+    {
+      "Id": "D:\\dotNet\\Library\\Library\\wwwroot\\images\\wallpaperflare.com_wallpaper_64_O71MwIH.jpg",
+      "PackagePath": "staticwebassets\\images\\wallpaperflare.com_wallpaper_64_O71MwIH.jpg"
+    },
+    {
+      "Id": "D:\\dotNet\\Library\\Library\\wwwroot\\images\\wallpaperflare.com_wallpaper_66.jpg",
+      "PackagePath": "staticwebassets\\images\\wallpaperflare.com_wallpaper_66.jpg"
+    },
+    {
+      "Id": "D:\\dotNet\\Library\\Library\\wwwroot\\images\\wallpaperflare.com_wallpaper_8.jpg",
+      "PackagePath": "staticwebassets\\images\\wallpaperflare.com_wallpaper_8.jpg"
+    },
+    {
+      "Id": "D:\\dotNet\\Library\\Library\\wwwroot\\images\\webpage-creation.png",
+      "PackagePath": "staticwebassets\\images\\webpage-creation.png"
+    },
+    {
+      "Id": "D:\\dotNet\\Library\\Library\\wwwroot\\images\\what-is-software.png",
+      "PackagePath": "staticwebassets\\images\\what-is-software.png"
+    },
+    {
       "Id": "D:\\dotNet\\Library\\Library\\wwwroot\\js\\site.js",
       "PackagePath": "staticwebassets\\js\\site.js"
     },
