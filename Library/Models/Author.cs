@@ -14,7 +14,7 @@ namespace Library.Models
         [Required]
         public string Name { get; set; }  // Non-nullable
 
-        public virtual ICollection<Book> Books { get; private set; }  // Collection of Books
+        public virtual ICollection<Book> Books { get;set; }  // Collection of Books
 
         // Constructor to initialize non-nullable properties
         public Author(string name)

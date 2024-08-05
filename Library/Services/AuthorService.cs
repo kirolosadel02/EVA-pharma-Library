@@ -17,23 +17,27 @@ namespace Library.Services
 
         public async Task<IEnumerable<Author>> GetAuthorsAsync()
         {
-            return await _context.Authors.ToListAsync();
+            return await _context.Authors
+                .Include(a => a.Books) // Eager load books if necessary
+                .ToListAsync();
         }
 
         public async Task<Author> GetAuthorByIdAsync(int id)
         {
-            return await _context.Authors.FirstOrDefaultAsync(a => a.AuthorID == id);
+            return await _context.Authors
+                .Include(a => a.Books)
+                .FirstOrDefaultAsync(a => a.AuthorID == id);
         }
 
         public async Task CreateAuthorAsync(Author author)
         {
-            _context.Add(author);
+            _context.Authors.Add(author);
             await _context.SaveChangesAsync();
         }
 
         public async Task UpdateAuthorAsync(Author author)
         {
-            _context.Update(author);
+            _context.Authors.Update(author);
             await _context.SaveChangesAsync();
         }
 
@@ -49,7 +53,7 @@ namespace Library.Services
 
         public async Task<bool> AuthorExistsAsync(int id)
         {
-            return await _context.Authors.AnyAsync(a => a.AuthorID == id);
+            return await _context.Authors.AnyAsync(e => e.AuthorID == id);
         }
     }
 }
