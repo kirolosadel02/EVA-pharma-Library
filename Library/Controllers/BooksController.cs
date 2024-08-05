@@ -1,40 +1,36 @@
-﻿using System;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
+using System.Threading.Tasks;
 using Library.Models;
+using Library.Services;
 
 namespace Library.Controllers
 {
     public class BooksController : Controller
     {
-        private readonly LibraryContext _context;
+        private readonly IBookService _bookService;
 
-        public BooksController(LibraryContext context)
+        public BooksController(IBookService bookService)
         {
-            _context = context;
+            _bookService = bookService;
         }
 
         // GET: Books
         public async Task<IActionResult> Index()
         {
-            var libraryContext = _context.Books.Include(b => b.Author);
-            return View(await libraryContext.ToListAsync());
+            var books = await _bookService.GetBooksAsync();
+            return View(books);
         }
 
         // GET: Books/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null || _context.Books == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var book = await _context.Books
-                .Include(b => b.Author)
-                .FirstOrDefaultAsync(m => m.BookID == id);
+            var book = await _bookService.GetBookByIdAsync(id.Value);
             if (book == null)
             {
                 return NotFound();
@@ -44,12 +40,11 @@ namespace Library.Controllers
         }
 
         // GET: Books/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            ViewData["AuthorID"] = new SelectList(_context.Authors, "AuthorID", "Name");
+            ViewData["AuthorID"] = new SelectList(await _bookService.GetAuthorsAsync(), "AuthorID", "Name");
             return View();
         }
-
 
         // POST: Books/Create
         [HttpPost]
@@ -60,38 +55,33 @@ namespace Library.Controllers
             {
                 try
                 {
-                    _context.Add(book);
-                    await _context.SaveChangesAsync();
+                    await _bookService.CreateBookAsync(book);
                     return RedirectToAction(nameof(Index));
                 }
                 catch (Exception ex)
                 {
-                    // Log the exception (you can use a logging framework or simply print to the console)
-                    Console.WriteLine($"Error: {ex.Message}");
-                    // You might also want to handle specific exceptions here
+                    // Handle the exception (log it, show a user-friendly message, etc.)
                 }
             }
-            ViewData["AuthorID"] = new SelectList(_context.Authors, "AuthorID", "Name", book.AuthorID);
+            ViewData["AuthorID"] = new SelectList(await _bookService.GetAuthorsAsync(), "AuthorID", "Name", book.AuthorID);
             return View(book);
         }
-
 
         // GET: Books/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null || _context.Books == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var book = await _context.Books.FindAsync(id);
+            var book = await _bookService.GetBookByIdAsync(id.Value);
             if (book == null)
             {
                 return NotFound();
             }
 
-            // Populate ViewData with the list of authors and the current author's ID
-            ViewData["AuthorID"] = new SelectList(_context.Authors, "AuthorID", "Name", book.AuthorID);
+            ViewData["AuthorID"] = new SelectList(await _bookService.GetAuthorsAsync(), "AuthorID", "Name", book.AuthorID);
             return View(book);
         }
 
@@ -109,38 +99,27 @@ namespace Library.Controllers
             {
                 try
                 {
-                    _context.Update(book);
-                    await _context.SaveChangesAsync();
+                    await _bookService.UpdateBookAsync(book);
+                    return RedirectToAction(nameof(Index));
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (Exception ex)
                 {
-                    if (!BookExists(book.BookID))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    // Handle the exception (log it, show a user-friendly message, etc.)
                 }
-                return RedirectToAction(nameof(Index));
             }
-            // Repopulate ViewData in case of validation errors
-            ViewData["AuthorID"] = new SelectList(_context.Authors, "AuthorID", "Name", book.AuthorID);
+            ViewData["AuthorID"] = new SelectList(await _bookService.GetAuthorsAsync(), "AuthorID", "Name", book.AuthorID);
             return View(book);
         }
 
         // GET: Books/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null || _context.Books == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var book = await _context.Books
-                .Include(b => b.Author)
-                .FirstOrDefaultAsync(m => m.BookID == id);
+            var book = await _bookService.GetBookByIdAsync(id.Value);
             if (book == null)
             {
                 return NotFound();
@@ -154,23 +133,8 @@ namespace Library.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_context.Books == null)
-            {
-                return Problem("Entity set 'LibraryContext.Books' is null.");
-            }
-            var book = await _context.Books.FindAsync(id);
-            if (book != null)
-            {
-                _context.Books.Remove(book);
-            }
-
-            await _context.SaveChangesAsync();
+            await _bookService.DeleteBookAsync(id);
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool BookExists(int id)
-        {
-            return (_context.Books?.Any(e => e.BookID == id)).GetValueOrDefault();
         }
     }
 }

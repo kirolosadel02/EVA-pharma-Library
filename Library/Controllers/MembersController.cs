@@ -1,29 +1,22 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
 using Library.Models;
+using Library.Services;
 
 namespace Library.Controllers
 {
     public class MembersController : Controller
     {
-        private readonly LibraryContext _context;
+        private readonly IMemberService _memberService;
 
-        public MembersController(LibraryContext context)
+        public MembersController(IMemberService memberService)
         {
-            _context = context;
+            _memberService = memberService;
         }
 
         // GET: Members
         public async Task<IActionResult> Index()
         {
-            if (_context.Members == null)
-            {
-                return Problem("Entity set 'LibraryContext.Members' is null.");
-            }
-
-            var members = await _context.Members.ToListAsync();
+            var members = await _memberService.GetMembersAsync();
             return View(members);
         }
 
@@ -35,9 +28,7 @@ namespace Library.Controllers
                 return NotFound();
             }
 
-            var member = await _context.Members
-                .FirstOrDefaultAsync(m => m.ID == id);
-
+            var member = await _memberService.GetMemberByIdAsync(id.Value);
             if (member == null)
             {
                 return NotFound();
@@ -59,8 +50,7 @@ namespace Library.Controllers
         {
             if (ModelState.IsValid)
             {
-                _context.Add(member);
-                await _context.SaveChangesAsync();
+                await _memberService.CreateMemberAsync(member);
                 return RedirectToAction(nameof(Index));
             }
             return View(member);
@@ -74,7 +64,7 @@ namespace Library.Controllers
                 return NotFound();
             }
 
-            var member = await _context.Members.FindAsync(id);
+            var member = await _memberService.GetMemberByIdAsync(id.Value);
             if (member == null)
             {
                 return NotFound();
@@ -97,12 +87,12 @@ namespace Library.Controllers
             {
                 try
                 {
-                    _context.Update(member);
-                    await _context.SaveChangesAsync();
+                    await _memberService.UpdateMemberAsync(member);
+                    return RedirectToAction(nameof(Index));
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (Exception)
                 {
-                    if (!MemberExists(member.ID))
+                    if (!await _memberService.MemberExistsAsync(member.ID))
                     {
                         return NotFound();
                     }
@@ -111,7 +101,6 @@ namespace Library.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
             }
             return View(member);
         }
@@ -124,8 +113,7 @@ namespace Library.Controllers
                 return NotFound();
             }
 
-            var member = await _context.Members
-                .FirstOrDefaultAsync(m => m.ID == id);
+            var member = await _memberService.GetMemberByIdAsync(id.Value);
             if (member == null)
             {
                 return NotFound();
@@ -139,19 +127,8 @@ namespace Library.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var member = await _context.Members.FindAsync(id);
-            if (member != null)
-            {
-                _context.Members.Remove(member);
-                await _context.SaveChangesAsync();
-            }
-
+            await _memberService.DeleteMemberAsync(id);
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool MemberExists(int id)
-        {
-            return _context.Members.Any(e => e.ID == id);
         }
     }
 }

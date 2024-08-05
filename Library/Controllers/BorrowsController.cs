@@ -1,42 +1,39 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using Library.Models;
+using Library.Services;
 
 namespace Library.Controllers
 {
     public class BorrowsController : Controller
     {
-        private readonly LibraryContext _context;
+        private readonly IBorrowService _borrowService;
+        private readonly IBookService _bookService; // Assuming you have a similar service for books
+        private readonly IMemberService _memberService; // Assuming you have a similar service for members
 
-        public BorrowsController(LibraryContext context)
+        public BorrowsController(IBorrowService borrowService, IBookService bookService, IMemberService memberService)
         {
-            _context = context;
+            _borrowService = borrowService;
+            _bookService = bookService;
+            _memberService = memberService;
         }
 
         // GET: Borrows
         public async Task<IActionResult> Index()
         {
-            var libraryContext = _context.Borrows.Include(b => b.Book).Include(b => b.Member);
-            return View(await libraryContext.ToListAsync());
+            var borrows = await _borrowService.GetBorrowsAsync();
+            return View(borrows);
         }
 
         // GET: Borrows/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null || _context.Borrows == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var borrow = await _context.Borrows
-                .Include(b => b.Book)
-                .Include(b => b.Member)
-                .FirstOrDefaultAsync(m => m.BorrowID == id);
+            var borrow = await _borrowService.GetBorrowByIdAsync(id.Value);
             if (borrow == null)
             {
                 return NotFound();
@@ -46,52 +43,47 @@ namespace Library.Controllers
         }
 
         // GET: Borrows/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            ViewData["BookID"] = new SelectList(_context.Books, "BookID", "Title");
-            ViewData["MemberID"] = new SelectList(_context.Members, "ID", "ID");
+            ViewData["BookID"] = new SelectList(await _bookService.GetBooksAsync(), "BookID", "Title");
+            ViewData["MemberID"] = new SelectList(await _memberService.GetMembersAsync(), "ID", "ID");
             return View();
         }
 
         // POST: Borrows/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("BorrowID,MemberID,BookID,BorrowDate")] Borrow borrow)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(borrow);
-                await _context.SaveChangesAsync();
+                await _borrowService.CreateBorrowAsync(borrow);
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["BookID"] = new SelectList(_context.Books, "BookID", "Title", borrow.BookID);
-            ViewData["MemberID"] = new SelectList(_context.Members, "ID", "ID", borrow.MemberID);
+            ViewData["BookID"] = new SelectList(await _bookService.GetBooksAsync(), "BookID", "Title", borrow.BookID);
+            ViewData["MemberID"] = new SelectList(await _memberService.GetMembersAsync(), "ID", "ID", borrow.MemberID);
             return View(borrow);
         }
 
         // GET: Borrows/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null || _context.Borrows == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var borrow = await _context.Borrows.FindAsync(id);
+            var borrow = await _borrowService.GetBorrowByIdAsync(id.Value);
             if (borrow == null)
             {
                 return NotFound();
             }
-            ViewData["BookID"] = new SelectList(_context.Books, "BookID", "Title", borrow.BookID);
-            ViewData["MemberID"] = new SelectList(_context.Members, "ID", "ID", borrow.MemberID);
+            ViewData["BookID"] = new SelectList(await _bookService.GetBooksAsync(), "BookID", "Title", borrow.BookID);
+            ViewData["MemberID"] = new SelectList(await _memberService.GetMembersAsync(), "ID", "ID", borrow.MemberID);
             return View(borrow);
         }
 
         // POST: Borrows/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("BorrowID,MemberID,BookID,BorrowDate")] Borrow borrow)
@@ -105,12 +97,12 @@ namespace Library.Controllers
             {
                 try
                 {
-                    _context.Update(borrow);
-                    await _context.SaveChangesAsync();
+                    await _borrowService.UpdateBorrowAsync(borrow);
+                    return RedirectToAction(nameof(Index));
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (Exception)
                 {
-                    if (!BorrowExists(borrow.BorrowID))
+                    if (!await _borrowService.BorrowExistsAsync(borrow.BorrowID))
                     {
                         return NotFound();
                     }
@@ -119,25 +111,21 @@ namespace Library.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
             }
-            ViewData["BookID"] = new SelectList(_context.Books, "BookID", "Title", borrow.BookID);
-            ViewData["MemberID"] = new SelectList(_context.Members, "ID", "ID", borrow.MemberID);
+            ViewData["BookID"] = new SelectList(await _bookService.GetBooksAsync(), "BookID", "Title", borrow.BookID);
+            ViewData["MemberID"] = new SelectList(await _memberService.GetMembersAsync(), "ID", "ID", borrow.MemberID);
             return View(borrow);
         }
 
         // GET: Borrows/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null || _context.Borrows == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var borrow = await _context.Borrows
-                .Include(b => b.Book)
-                .Include(b => b.Member)
-                .FirstOrDefaultAsync(m => m.BorrowID == id);
+            var borrow = await _borrowService.GetBorrowByIdAsync(id.Value);
             if (borrow == null)
             {
                 return NotFound();
@@ -151,23 +139,8 @@ namespace Library.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_context.Borrows == null)
-            {
-                return Problem("Entity set 'LibraryContext.Borrows'  is null.");
-            }
-            var borrow = await _context.Borrows.FindAsync(id);
-            if (borrow != null)
-            {
-                _context.Borrows.Remove(borrow);
-            }
-            
-            await _context.SaveChangesAsync();
+            await _borrowService.DeleteBorrowAsync(id);
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool BorrowExists(int id)
-        {
-          return (_context.Borrows?.Any(e => e.BorrowID == id)).GetValueOrDefault();
         }
     }
 }

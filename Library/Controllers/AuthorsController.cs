@@ -1,41 +1,34 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
 using Library.Models;
+using Library.Services;
 
 namespace Library.Controllers
 {
     public class AuthorsController : Controller
     {
-        private readonly LibraryContext _context;
+        private readonly IAuthorService _authorService;
 
-        public AuthorsController(LibraryContext context)
+        public AuthorsController(IAuthorService authorService)
         {
-            _context = context;
+            _authorService = authorService;
         }
 
         // GET: Authors
         public async Task<IActionResult> Index()
         {
-              return _context.Authors != null ? 
-                          View(await _context.Authors.ToListAsync()) :
-                          Problem("Entity set 'LibraryContext.Authors'  is null.");
+            var authors = await _authorService.GetAuthorsAsync();
+            return View(authors);
         }
 
         // GET: Authors/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null || _context.Authors == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var author = await _context.Authors
-                .FirstOrDefaultAsync(m => m.AuthorID == id);
+            var author = await _authorService.GetAuthorByIdAsync(id.Value);
             if (author == null)
             {
                 return NotFound();
@@ -51,16 +44,13 @@ namespace Library.Controllers
         }
 
         // POST: Authors/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("AuthorID,Name")] Author author)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(author);
-                await _context.SaveChangesAsync();
+                await _authorService.CreateAuthorAsync(author);
                 return RedirectToAction(nameof(Index));
             }
             return View(author);
@@ -69,22 +59,21 @@ namespace Library.Controllers
         // GET: Authors/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null || _context.Authors == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var author = await _context.Authors.FindAsync(id);
+            var author = await _authorService.GetAuthorByIdAsync(id.Value);
             if (author == null)
             {
                 return NotFound();
             }
+
             return View(author);
         }
 
         // POST: Authors/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(int id, [Bind("AuthorID,Name")] Author author)
@@ -98,12 +87,12 @@ namespace Library.Controllers
             {
                 try
                 {
-                    _context.Update(author);
-                    await _context.SaveChangesAsync();
+                    await _authorService.UpdateAuthorAsync(author);
+                    return RedirectToAction(nameof(Index));
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (Exception)
                 {
-                    if (!AuthorExists(author.AuthorID))
+                    if (!await _authorService.AuthorExistsAsync(author.AuthorID))
                     {
                         return NotFound();
                     }
@@ -112,7 +101,6 @@ namespace Library.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
             }
             return View(author);
         }
@@ -120,13 +108,12 @@ namespace Library.Controllers
         // GET: Authors/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null || _context.Authors == null)
+            if (id == null)
             {
                 return NotFound();
             }
 
-            var author = await _context.Authors
-                .FirstOrDefaultAsync(m => m.AuthorID == id);
+            var author = await _authorService.GetAuthorByIdAsync(id.Value);
             if (author == null)
             {
                 return NotFound();
@@ -140,23 +127,8 @@ namespace Library.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_context.Authors == null)
-            {
-                return Problem("Entity set 'LibraryContext.Authors'  is null.");
-            }
-            var author = await _context.Authors.FindAsync(id);
-            if (author != null)
-            {
-                _context.Authors.Remove(author);
-            }
-            
-            await _context.SaveChangesAsync();
+            await _authorService.DeleteAuthorAsync(id);
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool AuthorExists(int id)
-        {
-          return (_context.Authors?.Any(e => e.AuthorID == id)).GetValueOrDefault();
         }
     }
 }
