@@ -12,5 +12,7 @@ namespace Library.Services
         Task UpdateBookAsync(Book book);
         Task DeleteBookAsync(int id);
         Task<IEnumerable<Author>> GetAuthorsAsync();
+
+        // Add any additional methods if needed for handling images or other functionalities
     }
 }

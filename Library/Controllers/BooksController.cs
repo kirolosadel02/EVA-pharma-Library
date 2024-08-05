@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.IO;
 using System.Threading.Tasks;
 using Library.Models;
 using Library.Services;
@@ -15,44 +17,43 @@ namespace Library.Controllers
             _bookService = bookService;
         }
 
-        // GET: Books
         public async Task<IActionResult> Index()
         {
             var books = await _bookService.GetBooksAsync();
             return View(books);
         }
 
-        // GET: Books/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var book = await _bookService.GetBookByIdAsync(id.Value);
-            if (book == null)
-            {
-                return NotFound();
-            }
+            if (book == null) return NotFound();
 
             return View(book);
         }
 
-        // GET: Books/Create
         public async Task<IActionResult> Create()
         {
             ViewData["AuthorID"] = new SelectList(await _bookService.GetAuthorsAsync(), "AuthorID", "Name");
             return View();
         }
 
-        // POST: Books/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("BookID,Title,AuthorID")] Book book)
+        public async Task<IActionResult> Create([Bind("BookID,Title,AuthorID")] Book book, IFormFile? imageFile)
         {
             if (ModelState.IsValid)
             {
+                if (imageFile != null && imageFile.Length > 0)
+                {
+                    using (var ms = new MemoryStream())
+                    {
+                        await imageFile.CopyToAsync(ms);
+                        book.Image = ms.ToArray();
+                    }
+                }
+
                 try
                 {
                     await _bookService.CreateBookAsync(book);
@@ -60,43 +61,41 @@ namespace Library.Controllers
                 }
                 catch (Exception ex)
                 {
-                    // Handle the exception (log it, show a user-friendly message, etc.)
+                    // Handle the exception
                 }
             }
             ViewData["AuthorID"] = new SelectList(await _bookService.GetAuthorsAsync(), "AuthorID", "Name", book.AuthorID);
             return View(book);
         }
 
-        // GET: Books/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var book = await _bookService.GetBookByIdAsync(id.Value);
-            if (book == null)
-            {
-                return NotFound();
-            }
+            if (book == null) return NotFound();
 
             ViewData["AuthorID"] = new SelectList(await _bookService.GetAuthorsAsync(), "AuthorID", "Name", book.AuthorID);
             return View(book);
         }
 
-        // POST: Books/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("BookID,Title,AuthorID")] Book book)
+        public async Task<IActionResult> Edit(int id, [Bind("BookID,Title,AuthorID")] Book book, IFormFile? imageFile)
         {
-            if (id != book.BookID)
-            {
-                return NotFound();
-            }
+            if (id != book.BookID) return NotFound();
 
             if (ModelState.IsValid)
             {
+                if (imageFile != null && imageFile.Length > 0)
+                {
+                    using (var ms = new MemoryStream())
+                    {
+                        await imageFile.CopyToAsync(ms);
+                        book.Image = ms.ToArray();
+                    }
+                }
+
                 try
                 {
                     await _bookService.UpdateBookAsync(book);
@@ -104,31 +103,23 @@ namespace Library.Controllers
                 }
                 catch (Exception ex)
                 {
-                    // Handle the exception (log it, show a user-friendly message, etc.)
+                    // Handle the exception
                 }
             }
             ViewData["AuthorID"] = new SelectList(await _bookService.GetAuthorsAsync(), "AuthorID", "Name", book.AuthorID);
             return View(book);
         }
 
-        // GET: Books/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var book = await _bookService.GetBookByIdAsync(id.Value);
-            if (book == null)
-            {
-                return NotFound();
-            }
+            if (book == null) return NotFound();
 
             return View(book);
         }
 
-        // POST: Books/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)

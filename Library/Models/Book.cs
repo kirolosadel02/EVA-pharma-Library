@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Library.Models
@@ -9,30 +7,31 @@ namespace Library.Models
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        public int BookID { get; set; }  // Primary Key, non-nullable
+        public int BookID { get; set; }
 
         [Required]
-        public string? Title { get; set; }  // Non-nullable
+        public string? Title { get; set; }
 
         [Required]
-        public int? AuthorID { get; set; }  // Non-nullable foreign key
+        public int? AuthorID { get; set; }
 
-        public virtual Author? Author { get; set; }  // Navigation property, will be set by EF Core
+        public virtual Author? Author { get; set; }
 
-        public virtual ICollection<Borrow> Borrows { get; set; }  // Collection of Borrows, initialized in constructor
+        public virtual ICollection<Borrow> Borrows { get; set; }
 
-        // Parameterless constructor for EF Core and model binding
+        // New property to store the image
+        public byte[]? Image { get; set; }
+
         public Book()
         {
-            Borrows = new List<Borrow>();  // Initialize collection to avoid null reference
+            Borrows = new List<Borrow>();
         }
 
-        // Constructor to initialize non-nullable properties
         public Book(string title, int authorID)
         {
             Title = title ?? throw new ArgumentNullException(nameof(title));
             AuthorID = authorID;
-            Borrows = new List<Borrow>();  // Initialize collection to avoid null reference
+            Borrows = new List<Borrow>();
         }
     }
 }

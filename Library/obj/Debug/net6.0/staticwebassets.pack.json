@@ -65,8 +65,16 @@
       "PackagePath": "staticwebassets\\images\\books.jpg"
     },
     {
+      "Id": "D:\\dotNet\\Library\\Library\\wwwroot\\images\\default-book.jpg",
+      "PackagePath": "staticwebassets\\images\\default-book.jpg"
+    },
+    {
       "Id": "D:\\dotNet\\Library\\Library\\wwwroot\\images\\logo.jpg",
       "PackagePath": "staticwebassets\\images\\logo.jpg"
+    },
+    {
+      "Id": "D:\\dotNet\\Library\\Library\\wwwroot\\images\\math.jpg",
+      "PackagePath": "staticwebassets\\images\\math.jpg"
     },
     {
       "Id": "D:\\dotNet\\Library\\Library\\wwwroot\\images\\members.jpg",

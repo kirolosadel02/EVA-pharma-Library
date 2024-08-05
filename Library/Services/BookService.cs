@@ -52,5 +52,7 @@ namespace Library.Services
         {
             return await _context.Authors.ToListAsync();
         }
+
+        // Additional methods for handling images or other functionalities can be added here if needed
     }
 }
